@@ -21,7 +21,7 @@ class AddCourseActivity : AppCompatActivity(), TimePickerFragment.DialogTimeList
     private val dialogFragment = TimePickerFragment()
     private var startTime = ""
     private var endTime = ""
-    private var selectedDay = 1
+    private var selectedDay = 0
 
     private lateinit var courseNameEditText: EditText
     private lateinit var lecturerEditText: EditText
@@ -108,7 +108,8 @@ class AddCourseActivity : AppCompatActivity(), TimePickerFragment.DialogTimeList
     }
 
     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-        selectedDay = p2 + 1
+        println("selected item is $p2 and day name is ${DayName.getByNumber(p2 + 1)}")
+        selectedDay = p2
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) {}

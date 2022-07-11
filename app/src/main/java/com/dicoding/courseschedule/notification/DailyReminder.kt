@@ -10,6 +10,7 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
 import android.provider.AlarmClock.EXTRA_MESSAGE
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -28,20 +29,22 @@ class DailyReminder : BroadcastReceiver() {
             val repository = DataRepository.getInstance(context)
             val courses = repository?.getTodaySchedule()
 
+            Log.d("DailyReminder", "Daily Received broadcast! with data ${courses?.size}")
             courses?.let {
+
                 if (it.isNotEmpty()) showNotification(context, it)
             }
         }
     }
 
-    //TODO 12 : Implement daily reminder for every 06.00 a.m using AlarmManager
+    //TODO 12 : Implement daily reminder for every 06.00 a.m using AlarmManager (DONE)
     fun setDailyReminder(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, DailyReminder::class.java)
 
         val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 14)
-        calendar.set(Calendar.MINUTE, 35)
+        calendar.set(Calendar.HOUR_OF_DAY, 6)
+        calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
 
         val pendingIntent = PendingIntent.getBroadcast(context, ID_REPEATING, intent, PendingIntent.FLAG_IMMUTABLE)
@@ -51,6 +54,18 @@ class DailyReminder : BroadcastReceiver() {
     }
 
     fun cancelAlarm(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, DailyReminder::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            ID_REPEATING,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        pendingIntent.cancel()
+
+        alarmManager.cancel(pendingIntent)
+
         Toast.makeText(context, "Repeating alarm canceled", Toast.LENGTH_SHORT).show()
 
     }
@@ -69,7 +84,6 @@ class DailyReminder : BroadcastReceiver() {
         val builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notifications)
             .setContentTitle(context.getString(R.string.today_schedule))
-            .setContentText(context.getString(R.string.notification_message_format))
             .setStyle(notificationStyle)
             .setColor(ContextCompat.getColor(context, android.R.color.transparent))
             .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
